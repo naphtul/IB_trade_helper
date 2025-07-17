@@ -3,6 +3,9 @@ import os
 from playwright.sync_api import sync_playwright, expect
 
 
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+
+
 def parse_suggestions(suggestions: dict) -> dict:
     """
     Parses the raw suggestions API response and returns a dictionary
@@ -26,7 +29,7 @@ def parse_suggestions(suggestions: dict) -> dict:
     return parsed_suggestions
 
 
-def get_suggestions() -> dict:
+def get_watchlist() -> dict:
     """
     Logs into Chaikin Analytics using credentials from environment variables,
     intercepts the suggestions API response, and returns parsed suggestions.
@@ -34,9 +37,13 @@ def get_suggestions() -> dict:
     Returns:
         dict: Parsed suggestions data as returned by `parse_suggestions`.
     """
+    # Validate that the required environment variables are set
+    if not os.environ.get("CHAIKIN_EMAIL") or not os.environ.get("CHAIKIN_PASSWORD"):
+        raise ValueError("Please set CHAIKIN_EMAIL and CHAIKIN_PASSWORD environment variables.")
+
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
-        context = browser.new_context()
+        context = browser.new_context(user_agent=USER_AGENT)
         page = context.new_page()
         suggestions_response = {}
 
@@ -68,4 +75,4 @@ def get_suggestions() -> dict:
 
 
 if __name__ == "__main__":
-    print(get_suggestions())
+    print(get_watchlist())
