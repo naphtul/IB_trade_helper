@@ -140,7 +140,10 @@ class IBApp(EClient, EWrapper):
 
             # Calculate difference and required shares
             value_difference = desired_value - curr_market_value
-            price = self.positions_map[symbol][1]
+            if symbol in self.positions_map:
+                price = self.positions_map[symbol][1]
+            else:
+                price = get_price(symbol)
             shares_to_trade = int(value_difference / price)
 
             # Generate buy/sell order if needed
