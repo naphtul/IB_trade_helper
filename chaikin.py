@@ -1,12 +1,12 @@
 import os
+from typing import Dict, Any
 
-from playwright.sync_api import sync_playwright, expect
-
+from playwright.sync_api import sync_playwright, expect, Response
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
 
 
-def parse_suggestions(suggestions: dict) -> dict:
+def parse_suggestions(suggestions: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
     """
     Parses the raw suggestions API response and returns a dictionary
     mapping symbols to their details.
@@ -21,15 +21,12 @@ def parse_suggestions(suggestions: dict) -> dict:
     parsed_suggestions = {}
     for suggestion in suggestions.get("data", {}).get("data", {}).get("data", []):
         symbol = suggestion.get("symbol", "")
-        parsed_suggestions[symbol] = {
-            "name": suggestion.get("name"),
-            "rating": suggestion.get("ratingName"),
-            "rating_id": suggestion.get("pgrRating"),
-        }
+        parsed_suggestions[symbol] = {"name": suggestion.get("name"), "rating": suggestion.get("ratingName"),
+            "rating_id": suggestion.get("pgrRating"), }
     return parsed_suggestions
 
 
-def get_watchlist() -> dict:
+def get_watchlist() -> Dict[str, Dict[str, Any]]:
     """
     Logs into Chaikin Analytics using credentials from environment variables,
     intercepts the suggestions API response, and returns parsed suggestions.
@@ -47,7 +44,7 @@ def get_watchlist() -> dict:
         page = context.new_page()
         suggestions_response = {}
 
-        def handle_response(response):
+        def handle_response(response: Response) -> None:
             """
             Intercepts network responses in Playwright and stores the JSON data
             from the suggestions API endpoint in the suggestions_response dictionary.

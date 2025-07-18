@@ -1,3 +1,5 @@
+ibapi
+playwright
 pydantic
-yfinance
 pytest-playwright
+yfinance
