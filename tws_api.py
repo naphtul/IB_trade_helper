@@ -94,7 +94,7 @@ class IBApp(EClient, EWrapper):
         """
         self.total_market_value = sum(value[2] for value in self.positions_map.values())
         print("Total Market Value:", self.total_market_value)
-        for symbol, (position, price, market_value) in self.positions_map.items():
+        for symbol, (position, price, market_value, _allocation) in self.positions_map.items():
             self.positions_map[symbol] = (position, price, market_value, market_value / self.total_market_value * 100)
             print(
                 f"Symbol: {symbol}, Position: {position}, Current Price: {price}, Market Value: {price * int(position):.2f}, Allocation: {market_value / self.total_market_value * 100:.2f}%")
@@ -148,6 +148,14 @@ class IBApp(EClient, EWrapper):
                 self.orders.append((symbol, "BUY", shares_to_trade))
             elif shares_to_trade < 0:
                 self.orders.append((symbol, "SELL", abs(shares_to_trade)))
+
+        # Handle a case in which we hold a position that is not in the desired allocation.
+        # We need to close that position.
+        for symbol, (position, price, market_value, allocation) in current_alloc.items():
+            if symbol not in desired_alloc and position > 0:
+                self.orders.append((symbol, "SELL", position))
+
+        print("Generated Rebalance Orders:", self.orders)
 
         return self.orders
 
