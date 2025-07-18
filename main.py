@@ -72,7 +72,7 @@ def main() -> None:
         watchlist: Dict[str, Dict[str, Any]] = get_watchlist()
 
         # Filter watchlist
-        watchlist = {sym: details for sym, details in watchlist.items() if details['rating_id'] >= 5 and sym not in ['U', 'AVGO']}
+        watchlist = {sym: details for sym, details in watchlist.items() if details['rating_id'] >= 5 and sym != 'U'}
 
         # Get current positions with callback
         app.get_my_positions(callback=on_positions_received)
